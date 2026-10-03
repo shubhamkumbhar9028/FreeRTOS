@@ -1,33 +1,37 @@
 #include<Arduino.h>
 #include<freertos/FreeRTOS.h>
 #include<freertos/task.h>
-#define LED_BUILTIN 4
-TaskHandle_t BlinkTaskHandle=NULL;
+#define LED_PIN 13
 
-void BlinkTask (void *parameter){
-  for( ; ;){
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.println("BlinkTask : LED ON");
-    vtaskDelay(1000/portTick_PERIOD_MS);
+TaskHandle_t BlinkTaskHandle = NULL;
 
-   digitalWrite(LED_BUILTIN, LOW);
-    Serial.println("BlinkTask : LED OFF");
-    vtaskDelay(1000/portTick_PERIOD_MS);
-
-    Serial.print("Blink running on core ");
-    Serial.println()
-
-
+void BlinkTask(void *parameter) {
+  for (;;) {
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println("BlinkTask: LED ON");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    
+    digitalWrite(LED_PIN, LOW);
+    Serial.println("BlinkTask: LED OFF");
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
+
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+
+  xTaskCreatePinnedToCore(
+    BlinkTask,
+    "BlinkTask",
+    10000,
+    NULL,
+    1,
+    &BlinkTaskHandle,
+    1
+  );
 }
 
-
 void loop() {
-  
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(1000);
+  // Empty
 }
